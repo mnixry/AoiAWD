@@ -1,17 +1,18 @@
 <?php
+
 namespace aoiawd;
 
 use Amp\Loop;
 
 use aoiawd\plugin\PluginManager;
 use Amp\Http\Server\StaticContent\DocumentRoot;
-use Amp\File\BlockingDriver;
 use MongoDB\Client as MongoClient;
 use MongoDB\Database;
 use aoicommon\helper\CommonHelper;
 use aoicommon\socket\AsyncTCPServer;
 use aoicommon\api\APIServer;
 use aoiawd\api\v1;
+use aoiawd\api\waf;
 
 class AoiAWD
 {
@@ -66,12 +67,17 @@ class AoiAWD
 
     public function initAPIServer()
     {
+        $currentDir = PHAR_BASE ?? basename(__DIR__);
         $this->apiServer = new APIServer($this->config['httpServer']);
         $this->apiServer->getRouter()->addRoute('GET', '/websocket', new WebsocketHandler);
-        $this->apiServer->getRouter()->setFallback(new DocumentRoot(PHAR_BASE . '/public', new BlockingDriver));
+        $this->apiServer->getRouter()->setFallback(new DocumentRoot($staticDir = $currentDir . '/public'));
+        $this->logger->info("Static file dir: {$staticDir}");
         $apiV1 = new v1;
         $apiV1->setAccessToken($this->accessToken);
         $this->apiServer->addHandler('v1', $apiV1);
+        $apiWaf = new waf;
+        $apiWaf->setAccessToken($this->accessToken);
+        $this->apiServer->addHandler('waf', $apiWaf);
     }
 
     public function getArgv()

@@ -9,9 +9,9 @@ use MongoDB\BSON\ObjectId;
 
 use const aoiawd\plugin\COLLECTION_NAME;
 
-class WAF extends BaseAPIController
+class waf extends BaseAPIController
 {
-    public function createWafRule()
+    public function actionCreateRule()
     {
         $name = $this->_POST->name;
         $expression = $this->_POST->expression;
@@ -32,7 +32,7 @@ class WAF extends BaseAPIController
         ]);
     }
 
-    public function deleteWafRule()
+    public function actionDeleteRule()
     {
         $id = $this->_POST->id;
         $coll = DBHelper::getDB()->selectCollection(COLLECTION_NAME);
@@ -48,7 +48,7 @@ class WAF extends BaseAPIController
         ]);
     }
 
-    public function getWafRules()
+    public function actionListRules()
     {
         $id = $this->_GET->id;
         $coll = DBHelper::getDB()->selectCollection(COLLECTION_NAME);

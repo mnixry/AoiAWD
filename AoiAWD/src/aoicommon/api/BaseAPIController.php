@@ -1,4 +1,5 @@
 <?php
+
 namespace aoicommon\api;
 
 use Amp\Http\Server\RequestHandler;
@@ -11,7 +12,11 @@ use Amp\Http\Status;
 
 abstract class BaseAPIController implements RequestHandler
 {
+    /**
+     * @var Request
+     */
     protected $request;
+    
     protected $_accessToken;
     protected $_GET;
     protected $_POST;

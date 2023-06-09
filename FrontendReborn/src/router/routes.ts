@@ -6,7 +6,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    children: [
+      { path: '', component: () => import('pages/IndexPage.vue') },
+      {
+        path: '/waf/add',
+        component: () => import('pages/WafAddRulePage.vue'),
+      },
+    ],
   },
   {
     path: '/login',

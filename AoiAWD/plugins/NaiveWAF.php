@@ -9,12 +9,16 @@ new NaiveWAF(PluginManager::getInstance());
 const COLLECTION_NAME = 'waf_rule';
 
 const WAF_TRIGGERED_DEFAULT_RESPONSE = '
+<pre>
 The quick brown fox jumps over the lazy dog.
+
 The rain in Spain falls mainly on the plain.
 
 Please don\'t attack me.
 
-flag{waf_is_not_a_firewall}';
+flag{waf_is_not_a_firewall}
+</pre>
+';
 
 class NaiveWAF
 {
@@ -40,12 +44,12 @@ class NaiveWAF
                 case 'regex':
                     $field = $match_expression['field'];
                     $regex = $match_expression['regex'];
-                    $matched = !!preg_match($regex, $data['data'][$field]);
+                    $matched = !!preg_match($regex, $data[$field]);
                     break;
                 case 'function':
                     $expression = $match_expression['code'];
                     try {
-                        $matched = !!eval("return {$expression};");
+                        $matched = !!eval("return $expression;");
                     } catch (\Throwable $e) {
                         $this->pluginManager->getInvoker()->setAlert('NaiveWAF', "规则{$rule_name}匹配失败，表达式错误: {$e->getMessage()}");
                     }

@@ -1,5 +1,6 @@
-import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
+import { useAccessTokenStore } from 'src/stores/access-token';
+import { WAFListResult, WAFRule } from './api.models';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -7,24 +8,31 @@ declare module '@vue/runtime-core' {
   }
 }
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' });
-
-export default boot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
-
-  app.config.globalProperties.$axios = axios;
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
-
-  app.config.globalProperties.$api = api;
-  // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-  //       so you can easily perform requests against your app's API
+const api = axios.create({
+  baseURL: '/api/',
+  responseType: 'json',
+  headers: { 'Content-Type': 'application/json' },
+  validateStatus: () => true,
+});
+api.interceptors.request.use((config) => {
+  config.headers['Token'] = useAccessTokenStore().accessToken;
+  return config;
+});
+api.interceptors.response.use(async (response) => {
+  if (response.status === 403) {
+    useAccessTokenStore().setAccessToken('');
+  }
+  return response;
 });
 
-export { api };
+export const waf = {
+  async createRule(rule: WAFRule) {
+    return await api.post('waf/createRule', rule).then((res) => res.data);
+  },
+  async listRules(): Promise<WAFListResult> {
+    return await api.get('waf/listRules').then((res) => res.data);
+  },
+  async deleteRule(id: string) {
+    return await api.post('waf/deleteRule', { id }).then((res) => res.data);
+  },
+};

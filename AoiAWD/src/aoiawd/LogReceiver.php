@@ -205,9 +205,6 @@ class LogReceiver
             }
             $data = [];
             foreach ($this->alert as $alert) {
-                if ($logId != null) {
-                    $logId = $logId->jsonSerialize()['$oid'];
-                }
                 $data[] = [
                     'time' => time(),
                     'type' => $this->currentType,
@@ -215,7 +212,7 @@ class LogReceiver
                     'message' => $alert[1],
                     'reference' => [
                         'page' => ceil(DBHelper::getCollactionCount($collaction) / 20),
-                        'id' => $logId
+                        'id' => "$logId"
                     ]
                 ];
             }

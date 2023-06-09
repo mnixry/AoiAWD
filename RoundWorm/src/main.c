@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <pthread.h>
 #include "common/log.h"
 #include "common/uid.h"
@@ -60,15 +61,16 @@ int main(int argc, char *argv[])
     uid_init();
     io_init();
     process_init(global_args.process_watch_delay);
-    if (pthread_create(&process_thread, NULL, process_listen, NULL))
+    int thread_return;
+    if (thread_return = pthread_create(&process_thread, NULL, process_listen, NULL))
     {
-        fprintf(stderr, "Create process monitor thread failed\n");
+        fprintf(stderr, "Create process monitor thread failed, reason %s\n", strerror(thread_return));
         return EXIT_FAILURE;
     }
     pthread_detach(process_thread);
-    if (pthread_create(&inotify_thread, NULL, io_listen, NULL))
+    if (thread_return = pthread_create(&inotify_thread, NULL, io_listen, NULL))
     {
-        fprintf(stderr, "Create inotify monitor thread failed\n");
+        fprintf(stderr, "Create inotify monitor thread failed, reason %s\n", strerror(thread_return));
         return EXIT_FAILURE;
     }
     pthread_detach(inotify_thread);

@@ -6,7 +6,8 @@ import {
   createWebHistory,
 } from 'vue-router';
 
-import routes from './routes';
+import routes, { LOGIN_PAGE_NAME } from './routes';
+import { useAccessTokenStore } from 'src/stores/access-token';
 
 /*
  * If not building with SSR mode, you can
@@ -32,6 +33,12 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
+  });
+  Router.beforeEach((to, from) => {
+    const token = useAccessTokenStore().$state.accessToken;
+    if (to.name !== LOGIN_PAGE_NAME && !token) {
+      return { name: LOGIN_PAGE_NAME };
+    }
   });
 
   return Router;
